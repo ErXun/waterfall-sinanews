@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>waterfull-lazyload-ajax</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+</head>
+<body>
+    <main>
+       <div class="container">
+            <!-- <div class="box">
+                <a href="#">
+                    <img src="https://k.sinaimg.cn/n/mil/8_ori/upload/21a18b46/56/w999h657/20190511/82dd-hwsffzc4934218.jpg/w640slw.jpg" >
+                </a>
+                <h4>细看俄罗斯国产检阅车</h4>
+                <p>比中国红旗车咋样？细看俄罗斯国产阿鲁斯检阅车</p>
+            </div> -->
+            <div class="box hide"></div>
+       </div>
+       <div id="load"></div>
+    </main>
+    <script>
+        var curPage = 1;
+        var perPageCount = 10;
+        var heightArr = [];
+        var nodeWidth = $('.box').outerWidth(true)
+        var colCount = Math.floor($('.container').width()/nodeWidth);
+        for(var i=0; i<colCount; i++){
+            heightArr[i] = 0;
+        }
+        var isDataArrive = false
+
+        start()
+     
+        function start(){
+            getData(function(newsList){
+                isDataArrive = true
+                $.each(newsList,function(idx,news){
+                    var $node = createNode(news)
+                    $node.find('img').load(function(){
+                        $('.container').append($node)
+                        console.log($node, 'loaded...')
+                        waterFall($node)
+			        })
+                })
+          })
+          isDataArrive = false
+        }
+        // $(window).scroll(function(){
+        //         if(!isDataArrive) return
+        //         if(isShow($('#load'))){
+        //             start()
+        //         }
+        // })
+          $(window).scroll(function(){
+            if(!isDataArrive) return
+            if(Helpers.isToBottom($('.container'),$('.box'))){
+                start()
+            }
+          })   
+
+        //获取数据
+        function getData(callback){
+            $.ajax({
+                url:'https://photo.sina.cn/aj/v2/index?cate=military',
+                dataType:'jsonp',
+                jsonp:'callback',
+                data:{
+                    pagesize: perPageCount,
+                    page:curPage
+                }
+            }).done(function(ret){
+                if(ret && ret.code == 1 ){
+				callback(ret.data);   //如果数据没问题，那么生成节点并摆放好位置
+				curPage++
+			    }else{
+				console.log('get error data');
+			    }
+            });
+        }
+        function createNode(item){
+            var tpl = ''
+                tpl +='<div class="box">';
+                tpl +='<a href="'+item.surl+'"><img src="'+item.thumb+'" </a>';
+                tpl +=' <h4>'+item.stitle+'</h4>';
+                tpl +='<p>'+item.title+'</p>';
+                tpl +='</div>';
+            return $(tpl);
+        }
+        //瀑布流布局
+        function waterFall($node){
+            var idx = 0;
+            var minHeight = heightArr[0];  
+            for(var i =0;i<heightArr.length;i++){
+                if(heightArr[i] < minHeight){
+                    minHeight = heightArr[i];
+                    idx = i;
+                }
+            }
+            // console.log(heightArr)
+            // console.log('waterFallPlace')
+            // console.log(nodeWidth, idx)
+            $node.css({
+                left: nodeWidth * idx,
+                top: minHeight,
+            });
+            heightArr[idx] += $node.outerHeight(true);
+       }
+     //滚动到一定位置，继续加载资源
+       //一. 判断元素是否出现在窗口
+    //    function isShow($ele){
+    //        return $ele.offset().top < $(window).height() + $(window).scrollTop();
+    //    }
+       //二. 通过窗口与内容的高度进行判定
+       var Helpers = {
+            isToBottom: function($viewport, $content) {
+                return $viewport.height() + $viewport.scrollTop() == $content.height() 
+            }
+         }
+
+    </script>
+</body>
+</html>

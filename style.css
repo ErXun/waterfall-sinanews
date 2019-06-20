@@ -1,0 +1,40 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+a{
+    text-decoration: none;
+    color: #000;
+}
+.container{
+    position: relative;
+    width: 940px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+.box{
+    position: absolute;
+    border: 1px solid #dfdfdf;
+    padding: 15px;
+    margin: 10px 15px;
+    width: 280px;
+}
+.box img{
+    width: 250px;
+}
+.box h4,p{
+    cursor: text;
+}
+.box p{
+    padding: 5px;
+    margin: 10px 0;
+    border-bottom: 1px solid #ccc;
+    flex-wrap: wrap;
+    color: #777371;
+}
+.hide{
+    display: none;
+}
